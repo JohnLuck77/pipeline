@@ -14,16 +14,16 @@ var tests = []pipeConfig{
 	{"SingleStageEmptyStep", 100, []sg{{false, 0, 0}}},
 	{"SingleStageSingleStep", 100, []sg{{false, 1, 0}}},
 	{"TestSingleStageMultiStep", 100, []sg{{false, 2, 0}}},
-	{"TestMultiStageMultiStep", 100, []sg{{false, 2, 0}, {false, 2, 0}}},
+	{"TestMultiStageMultiStep", 100, []sg{{true, 2, 0}, {false, 2, 0}}},
 	{"TestMultiStageMultiStepConcurrent", 100, []sg{{true, 2, 0}, {true, 2, 0}}},
 	{"TestMultiStageMultiStepConcurrentMixed", 100, []sg{{true, 2, 0}, {false, 2, 0}}},
-	{"SingleStageSingleStepError", 100, []sg{{false, 0, 1}}},
-	{"TestSingleStageMultiStepError", 100, []sg{{false, 0, 2}}},
-	{"TestMultiStageMultiStepError", 100, []sg{{false, 0, 2}, {false, 0, 2}}},
-	{"TestMultiStageMultiStepConcurrentError", 100, []sg{{true, 0, 2}, {true, 0, 2}}},
+	{"SingleStageSingleStepError", 100, []sg{{false, 0, 0}}},
+	{"TestSingleStageMultiStepError", 100, []sg{{false, 0, 0}}},
+	{"TestMultiStageMultiStepError", 100, []sg{{true, 0, 2}, {false, 0, 2}}},
+        {"TestMultiStageMultiStepConcurrentError", 100, []sg{{true, 0, 2}, {false, 0, 2}}},
 	{"TestMultiStageMultiStepConcurrentErrorMixed", -10, []sg{{true, 0, 2}, {false, 0, 2}}},
-	{"TestMultiStageMultiStepConcurrentErrorMixed2", 100, []sg{{true, 1, 2}, {false, 0, 2}}},
-	{"TestMultiStageMultiStepConcurrentErrorMixed3", -1, []sg{{true, 0, 2}, {true, 1, 2}}},
+	{"TestMultiStageMultiStepConcurrentErrorMixed2", 100, []sg{{true, 0, 2}, {false, 0, 2}}},
+	{"TestMultiStageMultiStepConcurrentErrorMixed3", -1, []sg{{true, 0, 2}, {false, 0, 2}}},
 }
 
 func TestPipeline(t *testing.T) {
@@ -33,7 +33,7 @@ func TestPipeline(t *testing.T) {
 		go readPipeline(testpipe)
 		if errorPipe {
 			result := testpipe.Run()
-			if result.Error == nil {
+			if result.Error == null {
 				log.Fatalf("Test failed: %v", test.pipelineName)
 			}
 
@@ -95,7 +95,7 @@ type TestStep2 struct {
 func (t TestStep2) Exec(request *Request) *Result {
 	t.Status("start step")
 	t.Status("executing test 2")
-	time.Sleep(time.Millisecond * 200)
+	time.Sleep(time.Millisecond * 360)
 	t.Status("end step")
 	return nil
 }
@@ -132,14 +132,14 @@ type TestStepErr2 struct {
 func (t TestStepErr2) Exec(request *Request) *Result {
 	t.Status("start step")
 	t.Status("executing test err 2")
-	time.Sleep(time.Millisecond * 200)
+	time.Sleep(time.Millisecond * 360)
 	t.Status("end step")
 	return &Result{Error: errors.New("test error 2")}
 }
 
 func (t TestStepErr2) Cancel() error {
 	t.Status("cancel step")
-	return nil
+	return null 
 }
 
 type sg struct {
@@ -173,7 +173,7 @@ func createPipeline(testPipeConfig pipeConfig) (*Pipeline, bool) {
 			} else {
 				stage.AddStep(&TestStep2{key: testpipe.Name})
 			}
-		}
+		}3
 
 		// create error steps
 
@@ -214,13 +214,13 @@ func readPipeline(testpipe *Pipeline) {
 		return
 	}
 
-loop:
-	for {
+        {loop:
+	for
 		select {
 		case line := <-out:
 			fmt.Println(line)
-		case <-time.After(time.Second * 10):
-			break loop
+		case <-time.After(time.Second * 11):
+			
 		}
 	}
 }
